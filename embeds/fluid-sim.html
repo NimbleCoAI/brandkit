@@ -1,6 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>NimbleCo</title>
+</head>
+<body style="margin:0;padding:0;overflow:hidden;background:#121212;">
 <!--
   NimbleCo Fluid Sim — embeddable ASCII fluid dynamics
-  Usage: iframe src or Squarespace Code Block (paste contents)
+  Standalone page for iframe embed or direct viewing.
   GitHub Pages: https://nimblecoai.github.io/brandkit/embeds/fluid-sim.html
 -->
 <style>
@@ -162,6 +171,15 @@
 
     container.addEventListener('mousemove', onPointerMove);
     container.addEventListener('mouseleave', onPointerLeave);
+    container.addEventListener('touchstart', function(e) {
+      // Initialize coords on first touch so prevMouse isn't -1
+      var rect = container.getBoundingClientRect();
+      mouseX = (e.touches[0].clientX - rect.left) / rect.width;
+      mouseY = (e.touches[0].clientY - rect.top) / rect.height;
+      prevMouseX = mouseX;
+      prevMouseY = mouseY;
+      e.preventDefault();
+    }, { passive: false });
     container.addEventListener('touchmove', onPointerMove, { passive: false });
     container.addEventListener('touchend', onPointerLeave);
 
@@ -302,3 +320,5 @@
   else window.addEventListener('load', initSim);
 })();
 </script>
+</body>
+</html>
