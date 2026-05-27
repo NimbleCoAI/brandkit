@@ -1,0 +1,304 @@
+<!--
+  NimbleCo Fluid Sim — embeddable ASCII fluid dynamics
+  Usage: iframe src or Squarespace Code Block (paste contents)
+  GitHub Pages: https://nimblecoai.github.io/brandkit/embeds/fluid-sim.html
+-->
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400&family=Inter:wght@300;700&display=swap');
+  .fluid-container {
+    background: #0a0a0c;
+    position: relative;
+    width: 100%;
+    height: 80vh;
+    min-height: 400px;
+    overflow: hidden;
+    cursor: crosshair;
+    touch-action: none;
+  }
+  .fluid-container #fluid-ascii {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    line-height: 12px;
+    letter-spacing: 1px;
+    white-space: pre;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    z-index: 1;
+  }
+  .fluid-container .fluid-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .fluid-container .fluid-glow {
+    position: absolute;
+    width: 70%;
+    max-width: 600px;
+    aspect-ratio: 2.5;
+    background: radial-gradient(ellipse, rgba(10, 10, 12, 0.9) 0%, rgba(10, 10, 12, 0.5) 45%, transparent 70%);
+    pointer-events: none;
+    z-index: 5;
+  }
+  .fluid-container .fluid-logo {
+    position: relative;
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    text-shadow:
+      0 0 80px rgba(10, 10, 12, 0.97),
+      0 0 40px rgba(10, 10, 12, 0.95);
+  }
+  .fluid-container .fl-bracket {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 300;
+    font-size: clamp(36px, 7vw, 64px);
+    line-height: 1;
+    color: rgba(0, 220, 210, 0.5);
+  }
+  .fluid-container .fl-text {
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-weight: 700;
+    font-size: clamp(28px, 5.5vw, 48px);
+    color: rgba(255, 255, 255, 0.92);
+    padding: 0 clamp(4px, 0.5vw, 8px);
+    line-height: 1;
+  }
+  .fluid-container .fl-co {
+    color: rgba(180, 60, 200, 0.7);
+  }
+  .fluid-container .fluid-subtitle {
+    position: relative;
+    z-index: 6;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(10px, 1.8vw, 14px);
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.45);
+    margin-top: clamp(12px, 2vw, 24px);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-shadow: 0 0 30px rgba(10, 10, 12, 0.95);
+    text-align: center;
+    padding: 0 1rem;
+  }
+  .fluid-container .fluid-accent {
+    color: rgba(0, 220, 210, 0.6);
+  }
+</style>
+
+<div class="fluid-container" id="fluid-root">
+  <div id="fluid-ascii"></div>
+  <div class="fluid-overlay">
+    <div class="fluid-glow"></div>
+    <div class="fluid-logo">
+      <span class="fl-bracket">{</span>
+      <span class="fl-text">nimble<span class="fl-co">co</span></span>
+      <span class="fl-bracket">}</span>
+    </div>
+    <div class="fluid-subtitle">Multiplayer agentic AI for the <span class="fluid-accent">cyborg era</span></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var container = document.getElementById('fluid-root');
+  var el = document.getElementById('fluid-ascii');
+
+  function initSim() {
+    var W = container.offsetWidth;
+    var H = container.offsetHeight;
+    if (W < 10 || H < 10) return;
+
+    var CHAR_W = 7, CHAR_H = 12;
+    var COLS = Math.floor(W / CHAR_W);
+    var ROWS = Math.floor(H / CHAR_H);
+    var FLUID_SCALE = 2;
+    var FW = Math.floor(COLS / FLUID_SCALE) + 1;
+    var FH = Math.floor(ROWS / FLUID_SCALE) + 1;
+
+    var density = new Float32Array(FW * FH);
+    var densityPrev = new Float32Array(FW * FH);
+    var velX = new Float32Array(FW * FH);
+    var velY = new Float32Array(FW * FH);
+    var velXPrev = new Float32Array(FW * FH);
+    var velYPrev = new Float32Array(FW * FH);
+
+    var CHARS = ' .\u00b7:;+=*#%@';
+    var COLORS = [
+      [10,35,70],[15,55,110],[0,80,130],[0,110,140],
+      [40,60,160],[90,50,180],[140,45,200],[185,55,210],
+      [220,90,230],[240,130,245]
+    ];
+
+    var mouseX = -1, mouseY = -1, prevMouseX = -1, prevMouseY = -1;
+
+    function onPointerMove(e) {
+      var rect = container.getBoundingClientRect();
+      var cx, cy;
+      if (e.touches) {
+        cx = e.touches[0].clientX;
+        cy = e.touches[0].clientY;
+        e.preventDefault();
+      } else {
+        cx = e.clientX;
+        cy = e.clientY;
+      }
+      prevMouseX = mouseX;
+      prevMouseY = mouseY;
+      mouseX = (cx - rect.left) / rect.width;
+      mouseY = (cy - rect.top) / rect.height;
+    }
+    function onPointerLeave() { mouseX = mouseY = -1; }
+
+    container.addEventListener('mousemove', onPointerMove);
+    container.addEventListener('mouseleave', onPointerLeave);
+    container.addEventListener('touchmove', onPointerMove, { passive: false });
+    container.addEventListener('touchend', onPointerLeave);
+
+    function idx(x,y) { return y*FW+x; }
+    function clamp(v,lo,hi) { return Math.max(lo,Math.min(hi,v)); }
+
+    function diffuse(x,x0,diff,dt) {
+      var a = dt*diff*FW*FH;
+      for (var k=0;k<3;k++)
+        for (var j=1;j<FH-1;j++)
+          for (var i=1;i<FW-1;i++)
+            x[idx(i,j)]=(x0[idx(i,j)]+a*(x[idx(i-1,j)]+x[idx(i+1,j)]+x[idx(i,j-1)]+x[idx(i,j+1)]))/(1+4*a);
+    }
+
+    function advect(d,d0,u,v,dt) {
+      var dt0x=dt*FW, dt0y=dt*FH;
+      for (var j=1;j<FH-1;j++)
+        for (var i=1;i<FW-1;i++) {
+          var x=i-dt0x*u[idx(i,j)], y=j-dt0y*v[idx(i,j)];
+          x=clamp(x,0.5,FW-1.5); y=clamp(y,0.5,FH-1.5);
+          var i0=Math.floor(x),i1=i0+1,j0=Math.floor(y),j1=j0+1;
+          var s1=x-i0,s0=1-s1,t1=y-j0,t0=1-t1;
+          d[idx(i,j)]=s0*(t0*d0[idx(i0,j0)]+t1*d0[idx(i0,j1)])+s1*(t0*d0[idx(i1,j0)]+t1*d0[idx(i1,j1)]);
+        }
+    }
+
+    function densityStep(dt) {
+      diffuse(densityPrev,density,0.00005,dt);
+      advect(density,densityPrev,velX,velY,dt);
+      for (var i=0;i<density.length;i++) { density[i]*=0.985; if(density[i]<0.005) density[i]=0; }
+    }
+    function velocityStep(dt) {
+      diffuse(velXPrev,velX,0.00002,dt);
+      diffuse(velYPrev,velY,0.00002,dt);
+      advect(velX,velXPrev,velXPrev,velYPrev,dt);
+      advect(velY,velYPrev,velXPrev,velYPrev,dt);
+      for (var i=0;i<velX.length;i++) { velX[i]*=0.985; velY[i]*=0.985; }
+    }
+
+    var emitters = [];
+    for (var i=0;i<10;i++) {
+      var angle=(i/10)*Math.PI*2, r=0.15+Math.random()*0.22;
+      emitters.push({x:0.5+Math.cos(angle)*r*1.6,y:0.5+Math.sin(angle)*r,
+        vx:(Math.random()-0.5)*0.0015,vy:(Math.random()-0.5)*0.0015,
+        phase:angle,strength:0.5+Math.random()*0.35});
+    }
+
+    function addEmitterForces(t) {
+      emitters.forEach(function(em) {
+        em.x+=em.vx+Math.sin(t*0.0003+em.phase)*0.0003;
+        em.y+=em.vy+Math.cos(t*0.0004+em.phase*1.3)*0.0002;
+        if(em.x<0.04||em.x>0.96) em.vx*=-1;
+        if(em.y<0.04||em.y>0.96) em.vy*=-1;
+        em.x=clamp(em.x,0.04,0.96); em.y=clamp(em.y,0.04,0.96);
+        var fi=Math.floor(em.x*FW),fj=Math.floor(em.y*FH),r=3;
+        for(var dy=-r;dy<=r;dy++) for(var dx=-r;dx<=r;dx++) {
+          var ni=fi+dx,nj=fj+dy;
+          if(ni<1||ni>=FW-1||nj<1||nj>=FH-1) continue;
+          var dist=Math.sqrt(dx*dx+dy*dy); if(dist>r) continue;
+          var falloff=1-dist/(r+0.5), pulse=0.5+0.5*Math.sin(t*0.003+em.phase);
+          density[idx(ni,nj)]=clamp(density[idx(ni,nj)]+em.strength*falloff*pulse*0.16,0,1);
+          var a2=t*0.0012+em.phase;
+          velX[idx(ni,nj)]+=Math.cos(a2)*falloff*0.08;
+          velY[idx(ni,nj)]+=Math.sin(a2)*falloff*0.08;
+        }
+      });
+    }
+
+    function addMouseForce() {
+      if(mouseX<0||mouseY<0||prevMouseX<0) return;
+      var fi=Math.floor(mouseX*FW),fj=Math.floor(mouseY*FH);
+      var dx=(mouseX-prevMouseX)*FW*5,dy=(mouseY-prevMouseY)*FH*5,r=2;
+      for(var jj=-r;jj<=r;jj++) for(var ii=-r;ii<=r;ii++) {
+        var ni=fi+ii,nj=fj+jj;
+        if(ni<1||ni>=FW-1||nj<1||nj>=FH-1) continue;
+        var dist=Math.sqrt(ii*ii+jj*jj); if(dist>r) continue;
+        var falloff=1-dist/(r+0.5);
+        density[idx(ni,nj)]=clamp(density[idx(ni,nj)]+falloff*0.35,0,0.85);
+        velX[idx(ni,nj)]+=dx*falloff*0.2;
+        velY[idx(ni,nj)]+=dy*falloff*0.2;
+      }
+    }
+
+    // Seed
+    emitters.forEach(function(em) {
+      var fi=Math.floor(em.x*FW),fj=Math.floor(em.y*FH),r=6;
+      for(var dy=-r;dy<=r;dy++) for(var dx=-r;dx<=r;dx++) {
+        var ni=fi+dx,nj=fj+dy;
+        if(ni<1||ni>=FW-1||nj<1||nj>=FH-1) continue;
+        var dist=Math.sqrt(dx*dx+dy*dy); if(dist>r) continue;
+        density[idx(ni,nj)]=(1-dist/r)*em.strength*0.8;
+        velX[idx(ni,nj)]=(Math.random()-0.5)*0.2;
+        velY[idx(ni,nj)]=(Math.random()-0.5)*0.2;
+      }
+    });
+    for(var s=0;s<60;s++){addEmitterForces(s*50);velocityStep(0.016);densityStep(0.016);}
+
+    function renderASCII() {
+      var html='';
+      for(var row=0;row<ROWS;row++){
+        var line='';
+        for(var col=0;col<COLS;col++){
+          var fx=(col/COLS)*(FW-1),fy=(row/ROWS)*(FH-1);
+          var fi=Math.floor(fx),fj=Math.floor(fy);
+          var s=fx-fi,t=fy-fj;
+          var fi1=Math.min(fi+1,FW-1),fj1=Math.min(fj+1,FH-1);
+          var d=(1-s)*(1-t)*density[idx(fi,fj)]+s*(1-t)*density[idx(fi1,fj)]+(1-s)*t*density[idx(fi,fj1)]+s*t*density[idx(fi1,fj1)];
+          var vx2=(1-s)*(1-t)*velX[idx(fi,fj)]+s*t*velX[idx(fi1,fj1)];
+          var vy2=(1-s)*(1-t)*velY[idx(fi,fj)]+s*t*velY[idx(fi1,fj1)];
+          var speed=Math.sqrt(vx2*vx2+vy2*vy2);
+          var raw=clamp(d,0,1),intensity=Math.sqrt(raw);
+          var charIdx=Math.floor(intensity*(CHARS.length-1));
+          if(charIdx===0){line+=' ';}
+          else{
+            var colorT=clamp(speed*3.5,0,1);
+            var cIdx=Math.floor(intensity*5+colorT*4);
+            var c=COLORS[clamp(cIdx,0,COLORS.length-1)];
+            var alpha=0.35+intensity*0.6;
+            line+='<span style="color:rgba('+c[0]+','+c[1]+','+c[2]+','+alpha+')">'+CHARS[charIdx]+'</span>';
+          }
+        }
+        html+=line+'\n';
+      }
+      el.innerHTML=html;
+    }
+
+    var lastT=0;
+    function loop(t){
+      var dt=Math.min((t-lastT)/1000,0.05)||0.016; lastT=t;
+      addEmitterForces(t); addMouseForce(); velocityStep(dt); densityStep(dt); renderASCII();
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  }
+
+  // Init after layout settles
+  if(document.readyState==='complete') initSim();
+  else window.addEventListener('load', initSim);
+})();
+</script>

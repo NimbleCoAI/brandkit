@@ -1,0 +1,17 @@
+<svg width="340" height="48" viewBox="0 0 340 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Swarm mark -->
+  <circle cx="24" cy="24" r="4.2" fill="#00dcd2" opacity="0.9"/>
+  <circle cx="24" cy="13.5" r="3" fill="#c050d0" opacity="0.7"/>
+  <circle cx="33" cy="18.5" r="3" fill="#00dcd2" opacity="0.65"/>
+  <circle cx="33" cy="29.5" r="3" fill="#c050d0" opacity="0.6"/>
+  <circle cx="24" cy="34.5" r="3" fill="#00dcd2" opacity="0.55"/>
+  <circle cx="15" cy="29.5" r="3" fill="#c050d0" opacity="0.5"/>
+  <circle cx="15" cy="18.5" r="3" fill="#00dcd2" opacity="0.6"/>
+  <!-- { bracket -->
+  <text x="58" y="35" font-family="'JetBrains Mono', monospace" font-weight="300" font-size="40" fill="#00dcd2" opacity="0.5">{</text>
+  <!-- nimbleco -->
+  <text x="80" y="33" font-family="Inter, -apple-system, sans-serif" font-weight="700" font-size="28" fill="white" opacity="0.92">nimble</text>
+  <text x="210" y="33" font-family="Inter, -apple-system, sans-serif" font-weight="700" font-size="28" fill="#c050d0" opacity="0.7">co</text>
+  <!-- } bracket -->
+  <text x="248" y="35" font-family="'JetBrains Mono', monospace" font-weight="300" font-size="40" fill="#00dcd2" opacity="0.5">}</text>
+</svg>

@@ -1,0 +1,143 @@
+<!--
+  HSM Architecture Diagram — embeddable
+  Usage: iframe src or Squarespace Code Block (paste contents)
+  GitHub Pages: https://nimblecoai.github.io/brandkit/embeds/architecture-diagram.html
+-->
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  .hsm-diagram-wrap {
+    background: #0a0a0c;
+    color: rgba(255, 255, 255, 0.90);
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem;
+  }
+  .hsm-diagram-wrap * { margin: 0; padding: 0; box-sizing: border-box; }
+  .hsm-diagram { width: 920px; max-width: 100%; position: relative; }
+  .hsm-diagram .d-title { text-align: center; font-size: 28px; font-weight: 700; letter-spacing: -0.02em; color: rgba(255,255,255,0.93); margin-bottom: 0.3rem; }
+  .hsm-diagram .d-subtitle { text-align: center; font-size: 13px; letter-spacing: 0.08em; color: rgba(0,220,210,0.5); text-transform: uppercase; margin-bottom: 2.5rem; }
+  .hsm-diagram .d-layer { position: relative; margin-bottom: 1.25rem; }
+  .hsm-diagram .d-layer-label { position: absolute; left: 14px; top: 50%; transform: translateX(-50%) translateY(-50%) rotate(-90deg); font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.55); white-space: nowrap; text-align: center; }
+  .hsm-diagram .d-layer-content { margin-left: 44px; display: flex; gap: 10px; }
+  .hsm-diagram .d-node { flex: 1; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 18px 22px; background: rgba(255,255,255,0.02); position: relative; }
+  .hsm-diagram .d-node-title { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.90); margin-bottom: 6px; }
+  .hsm-diagram .d-node-desc { font-size: 11.5px; color: rgba(255,255,255,0.55); line-height: 1.55; }
+  .hsm-diagram .d-tag { display: inline-block; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; margin-top: 10px; }
+  .hsm-diagram .d-tag-upstream { background: rgba(0,220,210,0.08); color: rgba(0,220,210,0.65); }
+  .hsm-diagram .d-tag-fork { background: rgba(220,60,220,0.08); color: rgba(220,100,220,0.65); }
+  .hsm-diagram .d-tag-hsm { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.50); }
+  .hsm-diagram .d-accent { position: absolute; top: 0; left: 24px; right: 24px; height: 2px; border-radius: 0 0 2px 2px; opacity: 0.5; }
+  .hsm-diagram .d-accent-cyan { background: #00dcd2; }
+  .hsm-diagram .d-accent-magenta { background: #dc60dc; }
+  .hsm-diagram .d-accent-muted { background: rgba(255,255,255,0.15); }
+  .hsm-diagram .d-flow { margin-left: 44px; display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; padding: 4px 0; }
+  .hsm-diagram .d-flow-line { flex: 1; height: 1px; background: rgba(255,255,255,0.04); }
+  .hsm-diagram .d-flow-text { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.55); white-space: nowrap; }
+  .hsm-diagram .d-flow-arrow { color: rgba(0,220,210,0.6); font-size: 11px; }
+  .hsm-diagram .d-platforms { margin-left: 44px; display: flex; gap: 10px; justify-content: center; margin-top: 0.5rem; }
+  .hsm-diagram .d-pill { font-size: 10.5px; letter-spacing: 0.06em; padding: 6px 18px; border: 1px solid rgba(255,255,255,0.06); border-radius: 24px; color: rgba(255,255,255,0.50); background: transparent; }
+  .hsm-diagram .d-fleet { margin-left: 44px; display: flex; gap: 10px; }
+  .hsm-diagram .d-fleet-node { flex: 1; height: 48px; border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 9px; color: rgba(255,255,255,0.40); background: rgba(255,255,255,0.02); }
+  .hsm-diagram .d-principle { margin-left: 44px; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.04); text-align: center; }
+  .hsm-diagram .d-principle-text { font-size: 13px; font-style: italic; color: rgba(255,255,255,0.45); letter-spacing: 0.01em; }
+  .hsm-diagram .d-principle-text em { color: rgba(0,220,210,0.6); font-style: normal; }
+</style>
+
+<div class="hsm-diagram-wrap">
+<div class="hsm-diagram">
+  <div class="d-title">Hermes Swarm Map</div>
+  <div class="d-subtitle">Architecture</div>
+
+  <div class="d-layer">
+    <div class="d-layer-label">Control</div>
+    <div class="d-layer-content">
+      <div class="d-node" style="flex: 2;">
+        <div class="d-accent d-accent-cyan"></div>
+        <div class="d-node-title">Hermes Swarm Map</div>
+        <div class="d-node-desc">Management UI + REST API. Create, configure, monitor, and control agent fleet. Keys encrypted at rest. Model cascades. Policy enforcement.</div>
+        <span class="d-tag d-tag-hsm">Next.js &middot; AGPL v3</span>
+      </div>
+      <div class="d-node">
+        <div class="d-accent d-accent-muted"></div>
+        <div class="d-node-title">swarm_map_policy</div>
+        <div class="d-node-desc">Plugin bridge. Enforces group access, DM gating, budget limits via policy API.</div>
+        <span class="d-tag d-tag-fork">Plugin</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flow">
+    <div class="d-flow-line"></div>
+    <span class="d-flow-text">HSM configures</span>
+    <span class="d-flow-arrow">&darr;</span>
+    <span class="d-flow-text">Hermes enforces</span>
+    <div class="d-flow-line"></div>
+  </div>
+
+  <div class="d-layer">
+    <div class="d-layer-label">Runtime</div>
+    <div class="d-layer-content">
+      <div class="d-node">
+        <div class="d-accent d-accent-cyan"></div>
+        <div class="d-node-title">Memory Scoping</div>
+        <div class="d-node-desc">context_id partitions writes. Reads merge global + scoped. ~70 lines, 18 tests.</div>
+        <span class="d-tag d-tag-upstream">Upstream PR</span>
+      </div>
+      <div class="d-node">
+        <div class="d-accent d-accent-magenta"></div>
+        <div class="d-node-title">Adapter Patches</div>
+        <div class="d-node-desc">Signal, Telegram, Mattermost. UUID auth, invite policy, observe_only, voice memos.</div>
+        <span class="d-tag d-tag-fork">14 patches</span>
+      </div>
+      <div class="d-node">
+        <div class="d-accent d-accent-muted"></div>
+        <div class="d-node-title">Hermes Core</div>
+        <div class="d-node-desc">NousResearch upstream. 17-hook plugin architecture.</div>
+        <span class="d-tag d-tag-upstream">Upstream</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flow">
+    <div class="d-flow-line"></div>
+    <span class="d-flow-text">Per-context isolation</span>
+    <span class="d-flow-arrow">&darr;</span>
+    <span class="d-flow-text">Platform adapters</span>
+    <div class="d-flow-line"></div>
+  </div>
+
+  <div class="d-layer">
+    <div class="d-layer-label">Surface</div>
+    <div class="d-platforms">
+      <span class="d-pill">Signal</span>
+      <span class="d-pill">Telegram</span>
+      <span class="d-pill">Mattermost</span>
+      <span class="d-pill">API</span>
+    </div>
+  </div>
+
+  <div class="d-flow" style="margin-top: 1.25rem;">
+    <div class="d-flow-line"></div>
+    <span class="d-flow-text">Agent fleet</span>
+    <div class="d-flow-line"></div>
+  </div>
+
+  <div class="d-layer">
+    <div class="d-layer-label">Fleet</div>
+    <div class="d-fleet">
+      <div class="d-fleet-node">personal</div>
+      <div class="d-fleet-node">osint</div>
+      <div class="d-fleet-node">cyborg</div>
+      <div class="d-fleet-node">cryptids</div>
+      <div class="d-fleet-node">egregore</div>
+      <div class="d-fleet-node">seraph</div>
+    </div>
+  </div>
+
+  <div class="d-principle">
+    <div class="d-principle-text">Each agent learns in its own context. <em>None of them leak into each other.</em></div>
+  </div>
+</div>
+</div>
